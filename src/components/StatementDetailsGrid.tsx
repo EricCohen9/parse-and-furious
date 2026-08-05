@@ -1,13 +1,5 @@
 import { ParsedStatement } from "@/lib/types";
-import { Badge } from "@/components/ui/badge";
 import { fmtCurrency } from "@/lib/formatters";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableRow,
-} from "@/components/ui/table";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
 interface StatementDetailsGridProps {
   data: ParsedStatement;
@@ -21,26 +13,14 @@ function renderConfidenceBadge(score?: number | null) {
   const pct = Math.round(score > 1 ? score : score * 100);
 
   if (pct >= 90) {
-    return (
-      <Badge variant="outline" className="text-[10px] px-1.5 py-0 font-normal bg-emerald-500/10 text-emerald-600 border-emerald-500/20">
-        {pct}% Confidence
-      </Badge>
-    );
+    return <span className="badge bg-success-lt">{pct}% Confidence</span>;
   }
 
   if (pct >= 75) {
-    return (
-      <Badge variant="outline" className="text-[10px] px-1.5 py-0 font-normal bg-amber-500/10 text-amber-600 border-amber-500/20">
-        {pct}% Confidence
-      </Badge>
-    );
+    return <span className="badge bg-warning-lt">{pct}% Confidence</span>;
   }
 
-  return (
-    <Badge variant="destructive" className="text-[10px] px-1.5 py-0 font-normal">
-      {pct}% Low Confidence
-    </Badge>
-  );
+  return <span className="badge bg-danger-lt">{pct}% Low Confidence</span>;
 }
 
 export function StatementDetailsGrid({ data }: StatementDetailsGridProps) {
@@ -64,37 +44,36 @@ export function StatementDetailsGrid({ data }: StatementDetailsGridProps) {
   ];
 
   return (
-    <Card>
-      <CardHeader className="py-4 flex flex-row items-center justify-between">
-        <CardTitle className="text-sm font-semibold">Extracted Statement Details</CardTitle>
-        <span className="text-xs text-muted-foreground font-normal">AI Uncertainty Metrics</span>
-      </CardHeader>
-      <CardContent className="p-0">
-        <Table>
-          <TableBody>
+    <div className="card mt-4">
+      <div className="card-header d-flex justify-content-between align-items-center">
+        <h3 className="card-title mb-0">Extracted Statement Details</h3>
+        <small className="text-secondary">AI Confidence & Uncertainty Scores</small>
+      </div>
+      <div className="table-responsive">
+        <table className="table table-vcenter card-table">
+          <thead>
+            <tr>
+              <th>Field Metric</th>
+              <th>Extracted Value</th>
+              <th className="text-end">AI Confidence</th>
+            </tr>
+          </thead>
+          <tbody>
             {details.map((item) => (
-              <TableRow key={item.label}>
-                <TableCell className="font-medium text-muted-foreground text-xs w-1/3">
-                  {item.label}
-                </TableCell>
-                <TableCell className="text-sm text-foreground">
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <span>{item.value}</span>
-                      {item.badge && (
-                        <Badge variant="destructive" className="text-[10px] px-1.5 py-0 font-normal">
-                          {item.badge}
-                        </Badge>
-                      )}
-                    </div>
-                    {renderConfidenceBadge(item.confidence)}
+              <tr key={item.label}>
+                <td className="text-secondary font-weight-bold">{item.label}</td>
+                <td>
+                  <div className="d-flex align-items-center gap-2">
+                    <span className="font-weight-bold">{item.value}</span>
+                    {item.badge && <span className="badge bg-red-lt">{item.badge}</span>}
                   </div>
-                </TableCell>
-              </TableRow>
+                </td>
+                <td className="text-end">{renderConfidenceBadge(item.confidence)}</td>
+              </tr>
             ))}
-          </TableBody>
-        </Table>
-      </CardContent>
-    </Card>
+          </tbody>
+        </table>
+      </div>
+    </div>
   );
 }

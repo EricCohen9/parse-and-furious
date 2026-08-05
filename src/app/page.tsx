@@ -59,33 +59,41 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="page bg-body">
       <Navbar />
-      <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6 space-y-6">
-        <div id="results-top" />
-        <HeroHeader />
-        <StatementUploader
-          file={file}
-          model={model}
-          loading={loading}
-          onFileChange={handleFileChange}
-          onModelChange={setModel}
-          onParse={handleParse}
-        />
-        {loading && (
-          <ProcessingPipeline fileName={file?.name} modelId={model} />
-        )}
-        {result && !result.success && result.error && (
-          <ErrorAlert error={result.error} />
-        )}
-        {result?.success && !loading && (
-          <div id="results-dashboard-section" className="scroll-mt-20">
-            <ResultsDashboard result={result} />
+      <div className="page-wrapper">
+        <div className="container-xl py-4">
+          <HeroHeader />
+          <div className="row g-4">
+            <div className="col-md-4">
+              <RecentHistoryCard key={historyKey} onSelectDocument={setResult} />
+            </div>
+
+            <div className="col-md-8">
+              <div id="results-top" />
+              <StatementUploader
+                file={file}
+                model={model}
+                loading={loading}
+                onFileChange={handleFileChange}
+                onModelChange={setModel}
+                onParse={handleParse}
+              />
+              {loading && (
+                <ProcessingPipeline fileName={file?.name} modelId={model} />
+              )}
+              {result && !result.success && result.error && (
+                <ErrorAlert error={result.error} />
+              )}
+              {result?.success && !loading && (
+                <div id="results-dashboard-section">
+                  <ResultsDashboard result={result} />
+                </div>
+              )}
+            </div>
           </div>
-        )}
-        <RecentHistoryCard key={historyKey} onSelectDocument={setResult} />
-      </main>
+        </div>
+      </div>
     </div>
   );
 }
-

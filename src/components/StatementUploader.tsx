@@ -1,18 +1,18 @@
 "use client";
 
-import { useRef, useCallback, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { useRef, useCallback, useState, useEffect } from "react";
 import { fmtBytes } from "@/lib/formatters";
 import { MODELS } from "@/lib/types";
-import { Upload, FileText, Trash2, Loader2, Cpu } from "lucide-react";
+import {
+  IconUpload,
+  IconFileText,
+  IconTrash,
+  IconArrowUpRight,
+  IconLoader2,
+  IconCpu,
+  IconChevronDown,
+  IconCheck,
+} from "@tabler/icons-react";
 
 interface StatementUploaderProps {
   file: File | null;
@@ -32,7 +32,11 @@ export function StatementUploader({
   onParse,
 }: StatementUploaderProps) {
   const [dragOver, setDragOver] = useState(false);
+  const [open, setOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const selectedModel = MODELS.find((m) => m.id === model) || MODELS[0];
 
   const handleDrop = useCallback(
     (e: React.DragEvent) => {
@@ -53,17 +57,27 @@ export function StatementUploader({
     [onFileChange]
   );
 
-  const selectedModel = MODELS.find((m) => m.id === model) || MODELS[0];
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
-    <Card className="mb-8">
-      <CardHeader>
-        <CardTitle className="text-base font-semibold">Upload Statement</CardTitle>
-        <CardDescription className="text-xs">
-          Select a bank statement PDF or image to extract structured metrics.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
+    <div className="card mb-4">
+      <div className="card-status-top bg-primary"></div>
+      <div className="card-header">
+        <h3 className="card-title d-flex align-items-center gap-2">
+          <IconUpload size={20} className="text-primary" />
+          Upload & Process Bank Statement
+        </h3>
+      </div>
+
+      <div className="card-body">
         <div
           onClick={() => fileInputRef.current?.click()}
           onDragOver={(e) => {
@@ -72,62 +86,47 @@ export function StatementUploader({
           }}
           onDragLeave={() => setDragOver(false)}
           onDrop={handleDrop}
-          className={`
-            relative flex cursor-pointer flex-col items-center justify-center gap-2
-            rounded-lg border border-dashed p-6 text-center transition-colors
-            ${
-              dragOver
-                ? "border-primary bg-muted/60"
-                : file
-                ? "border-primary/50 bg-muted/30"
-                : "border-border bg-muted/20 hover:bg-muted/40"
-            }
-          `}
+          className={`p-4 text-center border-dashed rounded mb-3 cursor-pointer transition-colors ${
+            dragOver ? "bg-primary-lt border-primary" : "bg-body-tertiary"
+          }`}
+          style={{ borderStyle: "dashed", borderWidth: "2px" }}
         >
           {file ? (
-            <div className="flex w-full items-center justify-between rounded-md bg-background border p-3">
-              <div className="flex items-center gap-3 min-w-0">
-                <div className="flex size-9 shrink-0 items-center justify-center rounded-md border bg-muted text-foreground">
-                  <FileText className="size-4" />
-                </div>
-                <div className="text-left truncate">
-                  <p className="font-medium text-foreground text-sm truncate">{file.name}</p>
-                  <p className="text-xs text-muted-foreground">
+            <div className="d-flex align-items-center justify-content-between bg-body p-3 rounded border">
+              <div className="d-flex align-items-center gap-3 text-start min-w-0">
+                <span className="avatar bg-blue-lt">
+                  <IconFileText size={20} />
+                </span>
+                <div className="text-truncate">
+                  <div className="font-weight-bold text-reset text-truncate">{file.name}</div>
+                  <small className="text-secondary">
                     {fmtBytes(file.size)} • Ready to process
-                  </p>
+                  </small>
                 </div>
               </div>
-              <Button
+              <button
                 type="button"
-                variant="ghost"
-                size="sm"
+                className="btn btn-sm btn-icon btn-ghost-danger ms-2"
                 onClick={handleClearFile}
-                className="text-muted-foreground hover:text-destructive shrink-0 ml-2"
+                title="Remove file"
               >
-                <Trash2 className="size-4" />
-                <span className="sr-only">Remove file</span>
-              </Button>
+                <IconTrash size={18} />
+              </button>
             </div>
           ) : (
-            <>
-              <div className="flex size-10 items-center justify-center rounded-full border bg-background text-muted-foreground">
-                <Upload className="size-5" />
-              </div>
-              <div className="space-y-0.5">
-                <p className="text-sm font-medium text-foreground">
-                  Click to upload <span className="text-muted-foreground font-normal">or drag and drop</span>
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  PDF, PNG, JPG, JPEG or WEBP statements
-                </p>
-              </div>
-            </>
+            <div className="py-2">
+              <IconUpload className="text-secondary mb-2" size={36} />
+              <p className="mb-1 text-body font-weight-bold">
+                Click to upload <span className="text-secondary font-weight-normal">or drag and drop</span>
+              </p>
+              <small className="text-secondary">PDF, PNG, JPG, JPEG or WEBP statements</small>
+            </div>
           )}
           <input
             ref={fileInputRef}
             type="file"
             accept=".pdf,.png,.jpg,.jpeg,.webp"
-            className="hidden"
+            className="d-none"
             onChange={(e) => {
               const f = e.target.files?.[0];
               if (f) onFileChange(f);
@@ -135,54 +134,85 @@ export function StatementUploader({
           />
         </div>
 
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-          <div className="flex-1">
-            <Select value={model} onValueChange={(val) => val && onModelChange(val)}>
-              <SelectTrigger className="w-full h-10">
-                <SelectValue>
-                  <div className="flex items-center gap-2">
-                    <Cpu className="size-4 text-muted-foreground shrink-0" />
-                    <span className="font-medium text-sm">{selectedModel.label}</span>
-                    <span className="text-xs px-1.5 py-0.5 rounded bg-muted font-normal text-muted-foreground ml-auto">
-                      {selectedModel.badge}
-                    </span>
-                  </div>
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                {MODELS.map((m) => (
-                  <SelectItem key={m.id} value={m.id}>
-                    <div className="flex flex-col gap-0.5 py-0.5">
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium text-sm">{m.label}</span>
-                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted font-normal text-muted-foreground">
-                          {m.badge}
-                        </span>
+        <div className="row g-2 align-items-center">
+          <div className="col-md-7" ref={containerRef}>
+            <div className="dropdown position-relative">
+              <button
+                type="button"
+                className="btn btn-outline-secondary w-100 d-flex align-items-center justify-content-between px-3 py-2 text-start bg-body"
+                onClick={() => setOpen(!open)}
+              >
+                <div className="d-flex align-items-center gap-2 text-truncate">
+                  <IconCpu size={18} className="text-primary shrink-0" />
+                  <span className="font-weight-bold text-body text-truncate" style={{ fontSize: "0.88rem" }}>
+                    {selectedModel.label}
+                  </span>
+                </div>
+                <div className="d-flex align-items-center gap-2 shrink-0">
+                  <span className={`badge ${selectedModel.tier === "FAST" ? "bg-green-lt" : "bg-blue-lt"}`}>
+                    {selectedModel.badge}
+                  </span>
+                  <IconChevronDown size={16} className="text-secondary" />
+                </div>
+              </button>
+
+              {open && (
+                <div
+                  className="dropdown-menu show w-100 shadow-lg p-1 mt-1 border"
+                  style={{ zIndex: 1050, position: "absolute", top: "100%", left: 0 }}
+                >
+                  {MODELS.map((m) => (
+                    <button
+                      key={m.id}
+                      type="button"
+                      className={`dropdown-item d-flex align-items-center justify-content-between p-2 rounded mb-1 text-start ${
+                        model === m.id ? "active bg-primary-lt text-primary font-weight-bold" : ""
+                      }`}
+                      onClick={() => {
+                        onModelChange(m.id);
+                        setOpen(false);
+                      }}
+                    >
+                      <div className="d-flex align-items-center gap-2 text-truncate me-2">
+                        {model === m.id ? (
+                          <IconCheck size={16} className="text-primary shrink-0" />
+                        ) : (
+                          <span style={{ width: 16 }} />
+                        )}
+                        <span className="text-truncate">{m.label}</span>
                       </div>
-                      <span className="text-xs text-muted-foreground">{m.description}</span>
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+                      <span className={`badge shrink-0 ${m.tier === "FAST" ? "bg-green-lt" : "bg-blue-lt"}`}>
+                        {m.badge}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
-          <Button
-            onClick={onParse}
-            disabled={!file || loading}
-            className="h-10 px-6 font-medium shrink-0"
-          >
-            {loading ? (
-              <>
-                <Loader2 className="size-4 animate-spin mr-2" />
-                Parsing Statement...
-              </>
-            ) : (
-              "Parse Statement"
-            )}
-          </Button>
+          <div className="col-md-5">
+            <button
+              type="button"
+              className="btn btn-primary w-100 py-2 font-weight-bold d-flex align-items-center justify-content-center gap-2"
+              onClick={onParse}
+              disabled={!file || loading}
+            >
+              {loading ? (
+                <>
+                  <IconLoader2 size={18} className="spin" />
+                  <span>Parsing...</span>
+                </>
+              ) : (
+                <>
+                  <IconArrowUpRight size={18} />
+                  <span>Parse Statement</span>
+                </>
+              )}
+            </button>
+          </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

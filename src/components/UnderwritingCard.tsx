@@ -1,9 +1,16 @@
 import { ParsedStatement } from "@/lib/types";
 import { calculateUnderwritingSummary } from "@/lib/parser/underwriting";
 import { fmtCurrency } from "@/lib/formatters";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { ShieldCheck, ShieldAlert, AlertTriangle, DollarSign, CheckCircle2, AlertCircle, XCircle } from "lucide-react";
+import {
+  IconShieldCheck,
+  IconShieldExclamation,
+  IconAlertTriangle,
+  IconCheck,
+  IconAlertCircle,
+  IconX,
+  IconCurrencyDollar,
+  IconBrain,
+} from "@tabler/icons-react";
 
 interface UnderwritingCardProps {
   data: ParsedStatement;
@@ -12,28 +19,36 @@ interface UnderwritingCardProps {
 export function UnderwritingCard({ data }: UnderwritingCardProps) {
   const summary = calculateUnderwritingSummary(data);
 
+  const getStatusColorClass = () => {
+    switch (summary.riskTier) {
+      case "LOW":
+        return "bg-success";
+      case "MEDIUM":
+        return "bg-warning";
+      case "HIGH":
+        return "bg-danger";
+    }
+  };
+
   const getTierBadge = () => {
     switch (summary.riskTier) {
       case "LOW":
         return (
-          <Badge variant="outline" className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20 font-medium">
-            <ShieldCheck className="size-3.5 mr-1" />
-            Low Risk ({summary.riskScore}/100)
-          </Badge>
+          <span className="badge bg-green-lt d-flex align-items-center gap-1 p-2">
+            <IconShieldCheck size={16} /> Low Risk ({summary.riskScore}/100)
+          </span>
         );
       case "MEDIUM":
         return (
-          <Badge variant="outline" className="bg-amber-500/10 text-amber-600 border-amber-500/20 font-medium">
-            <AlertTriangle className="size-3.5 mr-1" />
-            Medium Risk ({summary.riskScore}/100)
-          </Badge>
+          <span className="badge bg-warning-lt d-flex align-items-center gap-1 p-2">
+            <IconAlertTriangle size={16} /> Medium Risk ({summary.riskScore}/100)
+          </span>
         );
       case "HIGH":
         return (
-          <Badge variant="destructive" className="font-medium">
-            <ShieldAlert className="size-3.5 mr-1" />
-            High Risk ({summary.riskScore}/100)
-          </Badge>
+          <span className="badge bg-red-lt d-flex align-items-center gap-1 p-2">
+            <IconShieldExclamation size={16} /> High Risk ({summary.riskScore}/100)
+          </span>
         );
     }
   };
@@ -42,122 +57,111 @@ export function UnderwritingCard({ data }: UnderwritingCardProps) {
     switch (summary.recommendation) {
       case "APPROVED":
         return (
-          <Badge variant="outline" className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20">
-            <CheckCircle2 className="size-3 mr-1" />
-            Approved
-          </Badge>
+          <span className="badge bg-success-lt d-flex align-items-center gap-1 p-2">
+            <IconCheck size={16} /> Approved
+          </span>
         );
       case "CONDITIONAL":
         return (
-          <Badge variant="outline" className="bg-amber-500/10 text-amber-600 border-amber-500/20">
-            <AlertCircle className="size-3 mr-1" />
-            Conditional Review
-          </Badge>
+          <span className="badge bg-warning-lt d-flex align-items-center gap-1 p-2">
+            <IconAlertCircle size={16} /> Conditional Review
+          </span>
         );
       case "DECLINED":
         return (
-          <Badge variant="destructive">
-            <XCircle className="size-3 mr-1" />
-            Declined
-          </Badge>
+          <span className="badge bg-danger-lt d-flex align-items-center gap-1 p-2">
+            <IconX size={16} /> Declined
+          </span>
         );
     }
   };
 
   return (
-    <Card className="border-l-4 border-l-primary/80 shadow-sm">
-      <CardHeader className="py-4 pb-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+    <div className="card mt-4">
+      <div className={`card-status-start ${getStatusColorClass()}`}></div>
+      <div className="card-header d-flex align-items-center justify-content-between">
         <div>
-          <CardTitle className="text-sm font-semibold flex items-center gap-2">
-            Underwriting Risk & Funding Decision
-          </CardTitle>
-          <CardDescription className="text-xs">
+          <h3 className="card-title mb-0">Underwriting Risk & Funding Decision</h3>
+          <small className="text-secondary">
             Automated MCA underwriting evaluation based on statement cash flow & risk indicators
-          </CardDescription>
+          </small>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="d-flex align-items-center gap-2">
           {getTierBadge()}
           {getRecommendationBadge()}
         </div>
-      </CardHeader>
+      </div>
 
-      <CardContent className="space-y-4 pt-2">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-muted/40 p-3 rounded-lg border">
-          <div>
-            <span className="text-xs text-muted-foreground font-medium block mb-1">
-              Max Recommended Advance
-            </span>
-            <div className="text-lg font-bold text-foreground flex items-center gap-1">
-              <DollarSign className="size-4 text-emerald-600 -mr-1" />
+      <div className="card-body">
+        <div className="row g-3 mb-4 bg-body-tertiary p-3 rounded border">
+          <div className="col-md-6">
+            <div className="subheader mb-1">Max Recommended Advance</div>
+            <div className="h2 m-0 text-success d-flex align-items-center gap-1">
+              <IconCurrencyDollar size={24} />
               {summary.recommendedFunding > 0 ? fmtCurrency(summary.recommendedFunding) : "$0 (Decline)"}
             </div>
-            <span className="text-[11px] text-muted-foreground">
+            <small className="text-secondary">
               {summary.recommendation === "APPROVED"
                 ? "Based on 12% baseline deposit capacity"
                 : summary.recommendation === "CONDITIONAL"
                 ? "50% risk-adjusted reduction applied"
                 : "No funding recommended due to high risk"}
-            </span>
+            </small>
           </div>
 
-          <div>
-            <span className="text-xs text-muted-foreground font-medium block mb-1">
-              MCA Debt Stacking
-            </span>
-            <div className="text-sm font-semibold text-foreground flex items-center gap-1.5 mt-1">
+          <div className="col-md-6">
+            <div className="subheader mb-1">MCA Debt Stacking</div>
+            <div className="mt-1">
               {data.mca_stacking_detected ? (
-                <Badge variant="destructive" className="text-xs">
-                  Stacking Flagged
-                </Badge>
+                <span className="badge bg-red-lt p-2">Stacking Flagged</span>
               ) : (
-                <Badge variant="outline" className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20 text-xs">
-                  Clean (No Stacking)
-                </Badge>
+                <span className="badge bg-green-lt p-2">Clean (No Stacking)</span>
               )}
             </div>
-            <span className="text-[11px] text-muted-foreground">
+            <small className="text-secondary d-block mt-1">
               {data.mca_stacking_detected
                 ? "Multiple concurrent daily ACH MCA debits detected"
                 : "No evidence of multi-lender daily debit stacking"}
-            </span>
+            </small>
           </div>
         </div>
 
-        <div>
-          <span className="text-xs font-semibold text-foreground block mb-2">
-            Underwriting Insights & Risk Triggers
-          </span>
-          <ul className="space-y-1.5 text-xs text-muted-foreground">
+        <div className="mb-3">
+          <div className="font-weight-bold text-body mb-2">Underwriting Insights & Risk Triggers</div>
+          <ul className="list-unstyled mb-0 space-y-1">
             {summary.reasons.map((reason, idx) => (
-              <li key={idx} className="flex items-start gap-2">
-                <span className="size-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
-                <span>{reason}</span>
+              <li key={idx} className="d-flex align-items-start gap-2 mb-1">
+                <span className="badge bg-primary rounded-circle p-1 mt-1"></span>
+                <span className="text-secondary" style={{ fontSize: "0.85rem" }}>{reason}</span>
               </li>
             ))}
           </ul>
         </div>
 
         {data.mca_explanation && (
-          <div className="bg-primary/5 p-3 rounded-lg border border-primary/10 space-y-1">
-            <span className="text-xs font-semibold text-primary block flex items-center gap-1.5">
-              <span>🧠</span> AI Reasoning & Explanation
-            </span>
-            <p className="text-xs text-muted-foreground leading-relaxed">
+          <div className="alert alert-info bg-blue-lt border-blue mb-0">
+            <div className="d-flex align-items-center gap-2 font-weight-bold mb-1">
+              <IconBrain size={18} />
+              <span>AI Reasoning & Explanation</span>
+            </div>
+            <p className="mb-1 text-secondary" style={{ fontSize: "0.85rem" }}>
               {data.mca_explanation}
             </p>
             {data.mca_lenders_detected && data.mca_lenders_detected.length > 0 && (
-              <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                <span className="text-[11px] font-medium text-foreground">Detected Lenders:</span>
+              <div className="d-flex align-items-center gap-2 mt-2">
+                <span className="text-body font-weight-bold" style={{ fontSize: "0.75rem" }}>
+                  Detected Lenders:
+                </span>
                 {data.mca_lenders_detected.map((lender, i) => (
-                  <Badge key={i} variant="secondary" className="text-[10px] py-0 px-1.5">
+                  <span key={i} className="badge bg-blue-lt">
                     {lender}
-                  </Badge>
+                  </span>
                 ))}
               </div>
             )}
           </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

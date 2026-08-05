@@ -3,23 +3,19 @@
 import { useState } from "react";
 import { ParseResponse, MODELS } from "@/lib/types";
 import { fmtCurrency } from "@/lib/formatters";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { KpiCard } from "@/components/KpiCard";
 import { UnderwritingCard } from "@/components/UnderwritingCard";
 import { StatementDetailsGrid } from "@/components/StatementDetailsGrid";
 import {
-  FileText,
-  Clock,
-  Check,
-  Copy,
-  Download,
-  Database,
-  Layers,
-  Code2,
-} from "lucide-react";
+  IconFileText,
+  IconClock,
+  IconCheck,
+  IconCopy,
+  IconDownload,
+  IconDatabase,
+  IconLayoutDashboard,
+  IconCode,
+} from "@tabler/icons-react";
 
 interface ResultsDashboardProps {
   result: ParseResponse;
@@ -27,6 +23,7 @@ interface ResultsDashboardProps {
 
 export function ResultsDashboard({ result }: ResultsDashboardProps) {
   const [copied, setCopied] = useState(false);
+  const [activeTab, setActiveTab] = useState<"overview" | "json">("overview");
 
   if (!result.success || !result.data) return null;
 
@@ -82,112 +79,130 @@ export function ResultsDashboard({ result }: ResultsDashboardProps) {
   };
 
   return (
-    <Card className="mb-8">
-      <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-4">
+    <div className="card mb-4">
+      <div className="card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
         <div>
-          <CardTitle className="text-base font-semibold flex items-center gap-2">
-            <FileText className="size-4 text-muted-foreground" />
+          <h3 className="card-title d-flex align-items-center gap-2 mb-0">
+            <IconFileText size={20} className="text-primary" />
             Extracted Statement Results
-          </CardTitle>
-          <CardDescription className="text-xs">
-            Processed via {modelLabel}
-          </CardDescription>
+          </h3>
+          <small className="text-secondary">Processed via {modelLabel}</small>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="d-flex align-items-center flex-wrap gap-2">
           {result.is_cached ? (
-            <Badge variant="secondary" className="text-xs font-normal">
-              <Database className="size-3 mr-1 text-muted-foreground" />
-              D1 Cache Hit
-            </Badge>
+            <span className="badge bg-green-lt d-flex align-items-center gap-1 p-2">
+              <IconDatabase size={14} /> D1 Cache Hit
+            </span>
           ) : (
-            <Badge variant="outline" className="text-xs font-normal">
+            <span className="badge bg-blue-lt d-flex align-items-center gap-1 p-2">
               Workers AI Engine
-            </Badge>
+            </span>
           )}
-          <Badge variant="outline" className="text-xs font-normal">
-            <Clock className="size-3 mr-1 text-muted-foreground" />
-            {result.processing_time_ms}ms
-          </Badge>
-          <Button
-            variant="outline"
-            size="sm"
+          <span className="badge bg-secondary-lt d-flex align-items-center gap-1 p-2">
+            <IconClock size={14} /> {result.processing_time_ms}ms
+          </span>
+
+          <button
+            type="button"
+            className="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1"
             onClick={handleCopyJSON}
-            className="h-8 text-xs font-medium"
           >
-            {copied ? <Check className="size-3.5 mr-1" /> : <Copy className="size-3.5 mr-1" />}
-            {copied ? "Copied" : "Copy JSON"}
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
+            {copied ? <IconCheck size={16} /> : <IconCopy size={16} />}
+            <span>{copied ? "Copied" : "Copy JSON"}</span>
+          </button>
+
+          <button
+            type="button"
+            className="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1"
             onClick={handleDownloadJSON}
-            className="h-8 text-xs font-medium"
           >
-            <Download className="size-3.5 mr-1" />
-            JSON
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
+            <IconDownload size={16} />
+            <span>JSON</span>
+          </button>
+
+          <button
+            type="button"
+            className="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1"
             onClick={handleDownloadCSV}
-            className="h-8 text-xs font-medium"
           >
-            <Download className="size-3.5 mr-1" />
-            CSV
-          </Button>
+            <IconDownload size={16} />
+            <span>CSV</span>
+          </button>
         </div>
-      </CardHeader>
+      </div>
 
+      <div className="card-header border-bottom-0">
+        <ul className="nav nav-tabs card-header-tabs">
+          <li className="nav-item">
+            <button
+              className={`nav-link d-flex align-items-center gap-1.5 ${activeTab === "overview" ? "active" : ""}`}
+              onClick={() => setActiveTab("overview")}
+            >
+              <IconLayoutDashboard size={16} />
+              <span>Parsed Summary & Underwriting</span>
+            </button>
+          </li>
+          <li className="nav-item">
+            <button
+              className={`nav-link d-flex align-items-center gap-1.5 ${activeTab === "json" ? "active" : ""}`}
+              onClick={() => setActiveTab("json")}
+            >
+              <IconCode size={16} />
+              <span>Raw JSON Output</span>
+            </button>
+          </li>
+        </ul>
+      </div>
 
-      <CardContent>
-        <Tabs defaultValue="overview">
-          <TabsList className="mb-4">
-            <TabsTrigger value="overview" className="text-xs">
-              <Layers className="size-3.5 mr-1.5" />
-              Overview
-            </TabsTrigger>
-            <TabsTrigger value="json" className="text-xs">
-              <Code2 className="size-3.5 mr-1.5" />
-              Raw JSON
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="overview" className="space-y-4 mt-0">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <KpiCard
-                title="Bank Name"
-                value={data.bank_name || "—"}
-                subtitle="Extracted Institution"
-              />
-              <KpiCard
-                title="Statement Period"
-                value={data.statement_period || "—"}
-                subtitle="Statement Date Range"
-              />
-              <KpiCard
-                title="Total Deposits"
-                value={fmtCurrency(data.total_deposits) ?? "—"}
-                subtitle={data.deposit_count !== null ? `${data.deposit_count} deposits` : "Count unavailable"}
-              />
-              <KpiCard
-                title="Total Withdrawals"
-                value={fmtCurrency(data.total_withdrawals) ?? "—"}
-                subtitle={data.withdrawal_count !== null ? `${data.withdrawal_count} withdrawals` : "Count unavailable"}
-              />
+      <div className="card-body">
+        {activeTab === "overview" && (
+          <div>
+            <div className="row g-3">
+              <div className="col-sm-6 col-lg-3">
+                <KpiCard
+                  title="Bank Name"
+                  value={data.bank_name || "—"}
+                  subtitle="Extracted Institution"
+                />
+              </div>
+              <div className="col-sm-6 col-lg-3">
+                <KpiCard
+                  title="Statement Period"
+                  value={data.statement_period || "—"}
+                  subtitle="Statement Date Range"
+                />
+              </div>
+              <div className="col-sm-6 col-lg-3">
+                <KpiCard
+                  title="Total Deposits"
+                  value={fmtCurrency(data.total_deposits) ?? "—"}
+                  valueClass="text-success"
+                  subtitle={data.deposit_count !== null ? `${data.deposit_count} deposits` : "Count unavailable"}
+                />
+              </div>
+              <div className="col-sm-6 col-lg-3">
+                <KpiCard
+                  title="Total Withdrawals"
+                  value={fmtCurrency(data.total_withdrawals) ?? "—"}
+                  subtitle={data.withdrawal_count !== null ? `${data.withdrawal_count} withdrawals` : "Count unavailable"}
+                />
+              </div>
             </div>
 
             <UnderwritingCard data={data} />
-
             <StatementDetailsGrid data={data} />
-          </TabsContent>
-          <TabsContent value="json" className="mt-0">
-            <div className="rounded-md border bg-zinc-950 p-4 font-mono text-xs text-zinc-100 overflow-x-auto max-h-96">
-              <pre>{JSON.stringify(data, null, 2)}</pre>
-            </div>
-          </TabsContent>
-        </Tabs>
-      </CardContent>
-    </Card>
+          </div>
+        )}
+
+        {activeTab === "json" && (
+          <div>
+            <pre className="bg-body-tertiary p-3 rounded mb-0 text-start font-mono" style={{ fontSize: "0.8rem", maxHeight: "450px", overflow: "auto" }}>
+              {JSON.stringify(data, null, 2)}
+            </pre>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }

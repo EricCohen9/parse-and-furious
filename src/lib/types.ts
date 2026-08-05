@@ -37,24 +37,24 @@ export interface ModelOption {
 export const MODELS: ModelOption[] = [
   {
     id: "@cf/meta/llama-3.2-3b-instruct",
-    label: "Llama 3.2 3B (Fast Tier)",
+    label: "Llama 3.2 3B",
     tier: "FAST",
-    badge: "⚡ Fast (~2-4s)",
-    description: "Lightweight, ultra-fast extraction for clean digital statements.",
+    badge: "Fast Tier (2-4s)",
+    description: "Lightweight, ultra-fast extraction for digital statements.",
   },
   {
     id: "@cf/deepseek-ai/deepseek-r1-distill-qwen-32b",
-    label: "DeepSeek R1 32B (Reasoning)",
+    label: "DeepSeek R1 32B",
     tier: "REASONING",
-    badge: "🧠 Deep Reasoning (~12-15s)",
+    badge: "Reasoning (12-15s)",
     description: "Advanced chain-of-thought for complex or stacked MCA debits.",
   },
   {
     id: "@cf/qwen/qwq-32b",
-    label: "Qwen QwQ 32B (Reasoning)",
+    label: "Qwen QwQ 32B",
     tier: "REASONING",
-    badge: "🧠 Deep Reasoning (~12-15s)",
-    description: "High-precision analytical reasoning for dense multi-page statements.",
+    badge: "Analytical (12-15s)",
+    description: "High-precision analytical reasoning for multi-page statements.",
   },
 ];
 

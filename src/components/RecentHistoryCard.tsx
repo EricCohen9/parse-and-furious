@@ -2,11 +2,14 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { HistoryDocument, ParseResponse } from "@/lib/types";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { fmtCurrency } from "@/lib/formatters";
-import { History, Database, ArrowRight, RefreshCw, FileText } from "lucide-react";
+import {
+  IconHistory,
+  IconRefresh,
+  IconFileText,
+  IconChevronRight,
+  IconDatabase,
+} from "@tabler/icons-react";
 
 interface RecentHistoryCardProps {
   onSelectDocument: (result: ParseResponse) => void;
@@ -35,36 +38,36 @@ export function RecentHistoryCard({ onSelectDocument }: RecentHistoryCardProps) 
     fetchHistory();
   }, [fetchHistory]);
 
-  if (history.length === 0 && !loading) {
-    return null;
-  }
-
   return (
-    <Card className="border-dashed bg-muted/30">
-      <CardHeader className="py-4 flex flex-row items-center justify-between">
-        <div>
-          <CardTitle className="text-sm font-semibold flex items-center gap-2">
-            <History className="size-4 text-primary" />
-            Recent Database Statements (D1 Cache)
-          </CardTitle>
-          <CardDescription className="text-xs">
-            Statements stored in SQLite D1 DB. Click any record to inspect instant cached extraction.
-          </CardDescription>
-        </div>
-        <Button
-          variant="ghost"
-          size="icon"
+    <div className="card sticky-top" style={{ top: "1.5rem" }}>
+      <div className="card-header d-flex align-items-center justify-content-between">
+        <h3 className="card-title d-flex align-items-center gap-2 mb-0">
+          <IconHistory size={18} className="text-primary" />
+          Recent Database Statements
+        </h3>
+        <button
+          type="button"
+          className="btn btn-sm btn-icon btn-ghost-secondary"
           onClick={fetchHistory}
           disabled={loading}
-          className="size-8"
           title="Refresh History"
         >
-          <RefreshCw className={`size-3.5 ${loading ? "animate-spin" : ""}`} />
-        </Button>
-      </CardHeader>
+          <IconRefresh size={16} className={loading ? "spin" : ""} />
+        </button>
+      </div>
 
-      <CardContent className="pt-0 pb-4">
-        <div className="divide-y rounded-md border bg-background text-xs">
+      <div className="card-body py-2 px-3 bg-body-tertiary border-bottom">
+        <small className="text-secondary d-flex align-items-center gap-1">
+          <IconDatabase size={14} /> D1 Database Cache Log
+        </small>
+      </div>
+
+      {history.length === 0 && !loading ? (
+        <div className="card-body text-center text-secondary py-4">
+          <small>No saved statements found in D1 DB.</small>
+        </div>
+      ) : (
+        <div className="list-group list-group-flush list-group-hoverable overflow-auto" style={{ maxHeight: "calc(100vh - 220px)" }}>
           {history.map((doc) => {
             let parsedData;
             try {
@@ -76,56 +79,63 @@ export function RecentHistoryCard({ onSelectDocument }: RecentHistoryCardProps) 
             return (
               <div
                 key={doc.id}
-                className="flex items-center justify-between p-3 hover:bg-muted/50 transition-colors"
+                className="list-group-item cursor-pointer p-3"
+                onClick={() => {
+                  if (parsedData) {
+                    onSelectDocument({
+                      success: true,
+                      data: parsedData,
+                      is_cached: true,
+                      model_used: doc.model_used,
+                      processing_time_ms: 0,
+                    });
+                    setTimeout(() => {
+                      const target = document.getElementById("results-dashboard-section");
+                      if (target) {
+                        target.scrollIntoView({ behavior: "smooth", block: "start" });
+                      }
+                    }, 50);
+                  }
+                }}
               >
-                <div className="space-y-1 min-w-0 pr-2">
-                  <div className="flex items-center gap-2 font-medium truncate">
-                    <FileText className="size-3.5 text-muted-foreground shrink-0" />
-                    <span className="truncate">{doc.file_name}</span>
-                    <Badge variant="outline" className="text-[10px] px-1 py-0 font-normal shrink-0">
-                      <Database className="size-2.5 mr-1" />
-                      D1 Stored
-                    </Badge>
+                <div className="row align-items-center">
+                  <div className="col-auto">
+                    <span className="avatar bg-blue-lt rounded">
+                      <IconFileText size={20} />
+                    </span>
                   </div>
-                  <div className="flex flex-wrap items-center gap-3 text-muted-foreground text-[11px]">
-                    <span>Bank: <strong className="text-foreground">{doc.bank_name || "Unknown"}</strong></span>
-                    {doc.total_deposits !== null && (
-                      <span>Deposits: <strong className="text-emerald-600">{fmtCurrency(doc.total_deposits)}</strong></span>
+                  <div className="col text-truncate">
+                    <div className="font-weight-bold text-reset text-truncate d-block">
+                      {doc.file_name}
+                    </div>
+                    <div className="d-flex align-items-center gap-2 mt-1">
+                      <span className="badge bg-green-lt p-1">D1 Stored</span>
+                      <small className="text-secondary">
+                        {new Date(doc.created_at).toLocaleDateString()}
+                      </small>
+                    </div>
+                    {doc.bank_name && (
+                      <div className="text-secondary text-truncate mt-1" style={{ fontSize: "0.75rem" }}>
+                        Bank: <strong>{doc.bank_name}</strong>
+                      </div>
                     )}
-                    <span>{new Date(doc.created_at).toLocaleDateString()}</span>
+                  </div>
+                  <div className="col-auto text-end">
+                    {doc.total_deposits !== null && (
+                      <div className="badge bg-success-lt font-weight-bold d-block mb-1">
+                        {fmtCurrency(doc.total_deposits)}
+                      </div>
+                    )}
+                    <button className="btn btn-sm btn-icon btn-ghost-secondary">
+                      <IconChevronRight size={16} />
+                    </button>
                   </div>
                 </div>
-
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => {
-                    if (parsedData) {
-                      onSelectDocument({
-                        success: true,
-                        data: parsedData,
-                        is_cached: true,
-                        model_used: doc.model_used,
-                        processing_time_ms: 0,
-                      });
-                      setTimeout(() => {
-                        const target = document.getElementById("results-dashboard-section");
-                        if (target) {
-                          target.scrollIntoView({ behavior: "smooth", block: "start" });
-                        }
-                      }, 50);
-                    }
-                  }}
-                  className="h-7 text-xs shrink-0"
-                >
-                  View Details
-                  <ArrowRight className="size-3 ml-1" />
-                </Button>
               </div>
             );
           })}
         </div>
-      </CardContent>
-    </Card>
+      )}
+    </div>
   );
 }

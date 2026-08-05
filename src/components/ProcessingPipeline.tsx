@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Card } from "@/components/ui/card";
-import { Loader2, Cpu } from "lucide-react";
+import { IconLoader2, IconCpu } from "@tabler/icons-react";
 import { MODELS } from "@/lib/types";
 
 interface ProcessingPipelineProps {
@@ -65,35 +64,35 @@ export function ProcessingPipeline({ fileName, modelId }: ProcessingPipelineProp
   const currentStage = STAGES[stageIndex] || STAGES[0];
 
   return (
-    <Card className="p-3.5 border shadow-sm mb-6 bg-card">
-      <div className="flex items-center justify-between gap-3 mb-2">
-        <div className="flex items-center gap-2 min-w-0">
-          <Loader2 className="size-4 animate-spin text-primary shrink-0" />
-          <span className="text-xs font-semibold text-foreground truncate">
-            {currentStage.label}
+    <div className="card mb-4">
+      <div className="card-body p-3">
+        <div className="d-flex align-items-center justify-content-between mb-2">
+          <div className="d-flex align-items-center gap-2 text-truncate">
+            <IconLoader2 size={18} className="text-primary spin shrink-0" />
+            <span className="font-weight-bold text-truncate" style={{ fontSize: "0.85rem" }}>
+              {currentStage.label}
+            </span>
+          </div>
+          <span className="badge bg-primary-lt font-mono">{progress}%</span>
+        </div>
+
+        <div className="progress progress-sm mb-2">
+          <div
+            className="progress-bar bg-primary transition-all duration-300"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+
+        <div className="d-flex align-items-center justify-content-between text-secondary" style={{ fontSize: "0.75rem" }}>
+          <span className="text-truncate">
+            Processing {fileName ? <strong>{fileName}</strong> : "statement"}
+          </span>
+          <span className="d-flex align-items-center gap-1 shrink-0">
+            <IconCpu size={14} />
+            {modelLabel}
           </span>
         </div>
-        <span className="text-xs font-mono font-medium text-muted-foreground shrink-0">
-          {progress}%
-        </span>
       </div>
-
-      <div className="w-full bg-muted rounded-full h-1.5 overflow-hidden mb-2">
-        <div
-          className="bg-primary h-full transition-all duration-500 ease-out rounded-full"
-          style={{ width: `${progress}%` }}
-        />
-      </div>
-
-      <div className="flex items-center justify-between text-[11px] text-muted-foreground">
-        <span className="truncate">
-          Processing {fileName ? <span className="font-medium text-foreground">{fileName}</span> : "statement"}
-        </span>
-        <span className="shrink-0 flex items-center gap-1">
-          <Cpu className="size-3 text-muted-foreground" />
-          {modelLabel}
-        </span>
-      </div>
-    </Card>
+    </div>
   );
 }

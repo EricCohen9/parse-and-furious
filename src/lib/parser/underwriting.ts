@@ -18,13 +18,11 @@ export function calculateUnderwritingSummary(data: ParsedStatement): Underwritin
   const nsf = data.nsf_count ?? 0;
   const isStacking = !!data.mca_stacking_detected;
 
-  // 1. MCA Stacking Detection
   if (isStacking) {
     score += 40;
     reasons.push("Multiple active MCA daily/weekly ACH debits detected (Stacking Risk).");
   }
 
-  // 2. NSF / Overdraft Frequency
   if (nsf >= 5) {
     score += 35;
     reasons.push(`High NSF/Overdraft count (${nsf} instances detected).`);
@@ -36,7 +34,6 @@ export function calculateUnderwritingSummary(data: ParsedStatement): Underwritin
     reasons.push(`Minor NSF/Overdraft count (${nsf} instance).`);
   }
 
-  // 3. Net Cash Flow Margin
   const netFlow = deposits - withdrawals;
   if (deposits > 0) {
     const netFlowRatio = netFlow / deposits;
@@ -49,7 +46,6 @@ export function calculateUnderwritingSummary(data: ParsedStatement): Underwritin
     }
   }
 
-  // 4. Average Daily Balance (ADB) Ratio
   if (deposits > 0) {
     const adbRatio = adb / deposits;
     if (adbRatio < 0.05 || adb < 1000) {
@@ -58,10 +54,8 @@ export function calculateUnderwritingSummary(data: ParsedStatement): Underwritin
     }
   }
 
-  // Cap score 0 - 100
   score = Math.min(100, Math.max(0, score));
 
-  // Determine Tiers & Recommendations
   let riskTier: "LOW" | "MEDIUM" | "HIGH" = "LOW";
   let recommendation: "APPROVED" | "CONDITIONAL" | "DECLINED" = "APPROVED";
   let fundingMultiplier = 1.0;
@@ -80,7 +74,6 @@ export function calculateUnderwritingSummary(data: ParsedStatement): Underwritin
     fundingMultiplier = 1.0;
   }
 
-  // Base advance calculation: ~12% of gross monthly deposits
   const baseCap = deposits * 0.12;
   const recommendedFunding = Math.round(baseCap * fundingMultiplier);
 

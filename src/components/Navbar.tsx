@@ -1,25 +1,22 @@
-import { FileText } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { IconFileText } from "@tabler/icons-react";
 
 export function Navbar() {
   return (
-    <header className="border-b bg-background sticky top-0 z-50">
-      <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3 sm:px-6">
-        <div className="flex items-center gap-2.5">
-          <div className="flex size-8 items-center justify-center rounded-md border bg-muted text-foreground">
-            <FileText className="size-4" />
-          </div>
-          <span className="font-semibold text-sm tracking-tight text-foreground">
-            Workers AI Document Parser
-          </span>
-        </div>
-        <div className="flex items-center gap-2">
-          <Badge variant="outline" className="text-xs font-normal">
+    <header className="navbar navbar-expand-md d-print-none border-bottom bg-body">
+      <div className="container-xl">
+        <h1 className="navbar-brand navbar-brand-autodark d-flex align-items-center gap-2 mb-0">
+          <IconFileText className="text-primary" size={24} />
+          <span>Workers AI Document Parser</span>
+        </h1>
+        <div className="navbar-nav flex-row order-md-last gap-3 align-items-center">
+          <span className="status status-orange font-weight-bold" style={{ fontSize: "0.8rem" }}>
+            <span className="status-dot status-dot-animated"></span>
             Cloudflare Workers AI
-          </Badge>
-          <Badge variant="secondary" className="text-xs font-normal hidden sm:inline-flex">
+          </span>
+          <span className="status status-blue font-weight-bold" style={{ fontSize: "0.8rem" }}>
+            <span className="status-dot"></span>
             D1 Database
-          </Badge>
+          </span>
         </div>
       </div>
     </header>

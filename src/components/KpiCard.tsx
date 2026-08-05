@@ -1,24 +1,18 @@
-import { LucideIcon } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-
 interface KpiCardProps {
   title: string;
   value: string;
   subtitle?: string;
-  icon?: LucideIcon;
+  valueClass?: string;
 }
 
-export function KpiCard({ title, value, subtitle, icon: Icon }: KpiCardProps) {
+export function KpiCard({ title, value, subtitle, valueClass }: KpiCardProps) {
   return (
-    <Card className="py-4 px-4">
-      <CardContent className="p-0 space-y-1">
-        <div className="flex items-center justify-between">
-          <span className="text-xs font-medium text-muted-foreground">{title}</span>
-          {Icon && <Icon className="size-4 text-muted-foreground" />}
-        </div>
-        <div className="text-xl font-bold tracking-tight text-foreground">{value}</div>
-        {subtitle && <p className="text-xs text-muted-foreground">{subtitle}</p>}
-      </CardContent>
-    </Card>
+    <div className="card">
+      <div className="card-body">
+        <div className="subheader">{title}</div>
+        <div className={`h2 m-0 text-truncate ${valueClass || ""}`}>{value}</div>
+        {subtitle && <div className="text-secondary mt-1" style={{ fontSize: "0.75rem" }}>{subtitle}</div>}
+      </div>
+    </div>
   );
 }

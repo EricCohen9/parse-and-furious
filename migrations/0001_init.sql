@@ -1,4 +1,3 @@
--- D1 Database Initialization Schema
 CREATE TABLE IF NOT EXISTS documents (
     id TEXT PRIMARY KEY,
     file_hash TEXT UNIQUE NOT NULL,
