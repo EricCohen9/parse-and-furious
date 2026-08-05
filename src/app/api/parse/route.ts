@@ -6,6 +6,8 @@ import { getCachedDocument, saveDocument } from "@/lib/parser/db";
 import { extractText } from "@/lib/parser/extractor";
 import { runLLM } from "@/lib/parser/llm";
 
+export const dynamic = "force-dynamic";
+
 function createResponse(
   success: boolean,
   modelId: string,

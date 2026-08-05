@@ -17,25 +17,22 @@ export async function saveDocument(
   const id = crypto.randomUUID();
   await db
     .prepare(
-      `INSERT INTO documents (id, file_hash, file_name, bank_name, account_number_mask, statement_period,
-        total_deposits, total_withdrawals, deposit_count, withdrawal_count,
-        avg_daily_balance, nsf_count, mca_stacking_detected, raw_json, model_used)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+      `INSERT INTO documents (
+        id, file_hash, file_name, bank_name, account_number_mask,
+        statement_period, total_deposits, total_withdrawals, nsf_count,
+        raw_json, model_used
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     )
     .bind(
       id,
       fileHash,
       fileName,
-      parsed.bank_name,
-      parsed.account_number_mask,
-      parsed.statement_period,
-      parsed.total_deposits,
-      parsed.total_withdrawals,
-      parsed.deposit_count,
-      parsed.withdrawal_count,
-      parsed.avg_daily_balance,
-      parsed.nsf_count,
-      parsed.mca_stacking_detected ? 1 : 0,
+      parsed.bank_name ?? null,
+      parsed.account_number_mask ?? null,
+      parsed.statement_period ?? null,
+      parsed.total_deposits ?? null,
+      parsed.total_withdrawals ?? null,
+      parsed.nsf_count ?? 0,
       JSON.stringify(parsed),
       modelId
     )

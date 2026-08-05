@@ -68,7 +68,7 @@ export function ProcessingPipeline({ fileName, modelId }: ProcessingPipelineProp
       <div className="card-body p-3">
         <div className="d-flex align-items-center justify-content-between mb-2">
           <div className="d-flex align-items-center gap-2 text-truncate">
-            <IconLoader2 size={18} className="text-primary spin shrink-0" />
+            <IconLoader2 size={18} className="text-primary spin flex-shrink-0" />
             <span className="font-weight-bold text-truncate" style={{ fontSize: "0.85rem" }}>
               {currentStage.label}
             </span>
@@ -78,8 +78,8 @@ export function ProcessingPipeline({ fileName, modelId }: ProcessingPipelineProp
 
         <div className="progress progress-sm mb-2">
           <div
-            className="progress-bar bg-primary transition-all duration-300"
-            style={{ width: `${progress}%` }}
+            className="progress-bar bg-primary"
+            style={{ width: `${progress}%`, transition: "width 0.3s ease" }}
           />
         </div>
 
@@ -87,7 +87,7 @@ export function ProcessingPipeline({ fileName, modelId }: ProcessingPipelineProp
           <span className="text-truncate">
             Processing {fileName ? <strong>{fileName}</strong> : "statement"}
           </span>
-          <span className="d-flex align-items-center gap-1 shrink-0">
+          <span className="d-flex align-items-center gap-1 flex-shrink-0">
             <IconCpu size={14} />
             {modelLabel}
           </span>

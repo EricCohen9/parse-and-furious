@@ -6,24 +6,7 @@ export interface ParsedStatement {
   statement_period: string | null;
   total_deposits: number | null;
   total_withdrawals: number | null;
-  deposit_count: number | null;
-  withdrawal_count: number | null;
-  avg_daily_balance: number | null;
   nsf_count: number | null;
-  mca_stacking_detected: boolean | null;
-  mca_explanation?: string | null;
-  mca_lenders_detected?: string[] | null;
-  confidence_scores?: ConfidenceScores | null;
-}
-
-export interface ConfidenceScores {
-  bank_name?: number | null;
-  statement_period?: number | null;
-  total_deposits?: number | null;
-  total_withdrawals?: number | null;
-  avg_daily_balance?: number | null;
-  nsf_count?: number | null;
-  mca_stacking_detected?: number | null;
 }
 
 export interface ModelOption {
