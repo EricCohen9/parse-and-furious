@@ -24,11 +24,15 @@ h1, h2, h3, h4, h5, h6,
   font-family: var(--font-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
 }
 
+.font-mono {
+  font-family: var(--font-geist-mono), SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+}
+
 .btn-trash-clean {
   color: var(--tblr-secondary, #6c757d);
   background: transparent;
   border: none;
-  padding: 6px;
+  padding: 4px;
   border-radius: 6px;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   display: inline-flex;
@@ -38,7 +42,31 @@ h1, h2, h3, h4, h5, h6,
 }
 
 .btn-trash-clean:hover {
-  color: #d63939;
-  background-color: rgba(214, 57, 57, 0.1);
-  transform: scale(1.18);
+  color: var(--tblr-danger, #d63939);
+  background: transparent;
+  transform: scale(1.15);
+}
+
+.btn-icon-clean {
+  color: var(--tblr-secondary, #6c757d);
+  background: transparent;
+  border: none;
+  padding: 4px;
+  border-radius: 6px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.btn-icon-clean:hover:not(:disabled) {
+  color: var(--tblr-primary, #206bc4);
+  background: transparent;
+  transform: scale(1.15) rotate(45deg);
+}
+
+.btn-icon-clean:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }

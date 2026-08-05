@@ -57,12 +57,12 @@ export function RecentHistoryCard({ onSelectDocument, refreshTrigger }: RecentHi
         </h3>
         <button
           type="button"
-          className="btn btn-sm btn-icon btn-ghost-secondary"
+          className="btn-icon-clean"
           onClick={() => fetchHistory(true)}
           disabled={loading}
           title="Refresh History"
         >
-          <IconRefresh size={16} className={loading ? "spin" : ""} />
+          <IconRefresh size={18} className={loading ? "spin" : ""} />
         </button>
       </div>
 
