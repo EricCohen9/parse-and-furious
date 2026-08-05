@@ -1,131 +1,110 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
-import { HistoryDocument, ParseResponse } from "@/lib/types";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { useEffect, useState } from "react";
+import { HistoryDocument, ParseResponse, ParsedStatement } from "@/lib/types";
 import { fmtCurrency } from "@/lib/formatters";
-import { History, Database, ArrowRight, RefreshCw, FileText } from "lucide-react";
+import {
+  IconHistory,
+  IconRefresh,
+  IconFileText,
+} from "@tabler/icons-react";
 
 interface RecentHistoryCardProps {
   onSelectDocument: (result: ParseResponse) => void;
+  refreshTrigger?: unknown;
 }
 
-export function RecentHistoryCard({ onSelectDocument }: RecentHistoryCardProps) {
-  const [history, setHistory] = useState<HistoryDocument[]>([]);
+interface HistoryItem extends HistoryDocument {
+  parsedData?: ParsedStatement | null;
+}
+
+export function RecentHistoryCard({ onSelectDocument, refreshTrigger }: RecentHistoryCardProps) {
+  const [history, setHistory] = useState<HistoryItem[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const fetchHistory = useCallback(async () => {
-    setLoading(true);
+  const fetchHistory = async (showLoading = false) => {
+    if (showLoading || history.length === 0) setLoading(true);
     try {
       const res = await fetch("/api/history");
       const data = (await res.json()) as { success?: boolean; history?: HistoryDocument[] };
       if (data.success && Array.isArray(data.history)) {
-        setHistory(data.history);
+        const parsedItems: HistoryItem[] = data.history.map((doc) => {
+          let parsedData: ParsedStatement | null = null;
+          try {
+            parsedData = JSON.parse(doc.raw_json);
+          } catch {}
+          return { ...doc, parsedData };
+        });
+        setHistory(parsedItems);
       }
     } catch (err) {
       console.error("Failed to fetch history:", err);
     } finally {
       setLoading(false);
     }
-  }, []);
+  };
 
   useEffect(() => {
     fetchHistory();
-  }, [fetchHistory]);
-
-  if (history.length === 0 && !loading) {
-    return null;
-  }
+  }, [refreshTrigger]);
 
   return (
-    <Card className="border-dashed bg-muted/30">
-      <CardHeader className="py-4 flex flex-row items-center justify-between">
-        <div>
-          <CardTitle className="text-sm font-semibold flex items-center gap-2">
-            <History className="size-4 text-primary" />
-            Recent Database Statements (D1 Cache)
-          </CardTitle>
-          <CardDescription className="text-xs">
-            Statements stored in SQLite D1 DB. Click any record to inspect instant cached extraction.
-          </CardDescription>
-        </div>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={fetchHistory}
+    <div className="card sticky-top" style={{ top: "1.5rem" }}>
+      <div className="card-header d-flex align-items-center justify-content-between">
+        <h3 className="card-title d-flex align-items-center gap-2 mb-0">
+          <IconHistory size={18} className="text-secondary" />
+          Recent Statements
+        </h3>
+        <button
+          type="button"
+          className="btn-icon-clean"
+          onClick={() => fetchHistory(true)}
           disabled={loading}
-          className="size-8"
           title="Refresh History"
         >
-          <RefreshCw className={`size-3.5 ${loading ? "animate-spin" : ""}`} />
-        </Button>
-      </CardHeader>
+          <IconRefresh size={18} className={loading ? "spin" : ""} />
+        </button>
+      </div>
 
-      <CardContent className="pt-0 pb-4">
-        <div className="divide-y rounded-md border bg-background text-xs">
-          {history.map((doc) => {
-            let parsedData;
-            try {
-              parsedData = JSON.parse(doc.raw_json);
-            } catch {
-              parsedData = null;
-            }
-
-            return (
-              <div
-                key={doc.id}
-                className="flex items-center justify-between p-3 hover:bg-muted/50 transition-colors"
-              >
-                <div className="space-y-1 min-w-0 pr-2">
-                  <div className="flex items-center gap-2 font-medium truncate">
-                    <FileText className="size-3.5 text-muted-foreground shrink-0" />
-                    <span className="truncate">{doc.file_name}</span>
-                    <Badge variant="outline" className="text-[10px] px-1 py-0 font-normal shrink-0">
-                      <Database className="size-2.5 mr-1" />
-                      D1 Stored
-                    </Badge>
+      {history.length === 0 && !loading ? (
+        <div className="card-body text-center text-secondary py-4">
+          <small>No saved statements found.</small>
+        </div>
+      ) : (
+        <div className="list-group list-group-flush list-group-hoverable overflow-auto" style={{ maxHeight: "calc(100vh - 220px)" }}>
+          {history.map((doc) => (
+            <div
+              key={doc.id}
+              className="list-group-item cursor-pointer p-3"
+              onClick={() => {
+                if (doc.parsedData) {
+                  onSelectDocument({
+                    success: true,
+                    data: doc.parsedData,
+                    is_cached: true,
+                    model_used: doc.model_used,
+                    processing_time_ms: 0,
+                  });
+                }
+              }}
+            >
+              <div className="row align-items-center">
+                <div className="col-auto">
+                  <IconFileText size={20} className="text-secondary" />
+                </div>
+                <div className="col text-truncate">
+                  <div className="font-weight-bold text-body text-truncate d-block" style={{ fontSize: "0.88rem" }}>
+                    {doc.file_name}
                   </div>
-                  <div className="flex flex-wrap items-center gap-3 text-muted-foreground text-[11px]">
-                    <span>Bank: <strong className="text-foreground">{doc.bank_name || "Unknown"}</strong></span>
-                    {doc.total_deposits !== null && (
-                      <span>Deposits: <strong className="text-emerald-600">{fmtCurrency(doc.total_deposits)}</strong></span>
-                    )}
-                    <span>{new Date(doc.created_at).toLocaleDateString()}</span>
+                  <div className="text-secondary text-truncate" style={{ fontSize: "0.78rem" }}>
+                    {doc.bank_name ? `${doc.bank_name} • ` : ""}{new Date(doc.created_at).toLocaleDateString()}
                   </div>
                 </div>
-
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => {
-                    if (parsedData) {
-                      onSelectDocument({
-                        success: true,
-                        data: parsedData,
-                        is_cached: true,
-                        model_used: doc.model_used,
-                        processing_time_ms: 0,
-                      });
-                      setTimeout(() => {
-                        const target = document.getElementById("results-dashboard-section");
-                        if (target) {
-                          target.scrollIntoView({ behavior: "smooth", block: "start" });
-                        }
-                      }, 50);
-                    }
-                  }}
-                  className="h-7 text-xs shrink-0"
-                >
-                  View Details
-                  <ArrowRight className="size-3 ml-1" />
-                </Button>
               </div>
-            );
-          })}
+            </div>
+          ))}
         </div>
-      </CardContent>
-    </Card>
+      )}
+    </div>
   );
 }

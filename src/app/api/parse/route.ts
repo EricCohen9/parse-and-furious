@@ -6,6 +6,8 @@ import { getCachedDocument, saveDocument } from "@/lib/parser/db";
 import { extractText } from "@/lib/parser/extractor";
 import { runLLM } from "@/lib/parser/llm";
 
+export const dynamic = "force-dynamic";
+
 function createResponse(
   success: boolean,
   modelId: string,
@@ -58,6 +60,14 @@ export async function POST(request: NextRequest) {
     if (!extractedText || extractedText.trim().length < 30) {
       return createResponse(false, modelId, startTime, {
         error: "Could not extract text from this document. Please upload a clear bank statement PDF or image.",
+        status: 422,
+      });
+    }
+
+    const MAX_TEXT_LENGTH = 100000;
+    if (extractedText.length > MAX_TEXT_LENGTH) {
+      return createResponse(false, modelId, startTime, {
+        error: "Extracted document text exceeds the maximum allowed limit (100,000 characters). Please upload a standard bank statement.",
         status: 422,
       });
     }

@@ -1,5 +1,4 @@
-import { Card, CardContent } from "@/components/ui/card";
-import { AlertCircle } from "lucide-react";
+import { IconAlertCircle } from "@tabler/icons-react";
 
 interface ErrorAlertProps {
   error: string;
@@ -7,14 +6,14 @@ interface ErrorAlertProps {
 
 export function ErrorAlert({ error }: ErrorAlertProps) {
   return (
-    <Card className="mb-6 border-destructive/50 bg-destructive/5 text-destructive">
-      <CardContent className="p-4 flex items-start gap-3">
-        <AlertCircle className="size-4 shrink-0 mt-0.5" />
-        <div className="space-y-0.5">
-          <p className="font-semibold text-sm">Extraction Error</p>
-          <p className="text-xs opacity-90">{error}</p>
+    <div className="alert alert-danger mb-4" role="alert">
+      <div className="d-flex gap-2">
+        <IconAlertCircle size={20} className="flex-shrink-0 mt-1" />
+        <div>
+          <h4 className="alert-title mb-1">Extraction Error</h4>
+          <div className="text-secondary">{error}</div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
