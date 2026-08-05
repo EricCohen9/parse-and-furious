@@ -30,7 +30,7 @@ export const MODELS: ModelOption[] = [
     label: "DeepSeek R1 32B",
     tier: "REASONING",
     badge: "Reasoning (12-15s)",
-    description: "Advanced chain-of-thought for complex or stacked MCA debits.",
+    description: "Advanced chain-of-thought reasoning for complex bank statements.",
   },
   {
     id: "@cf/qwen/qwq-32b",

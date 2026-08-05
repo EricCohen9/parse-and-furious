@@ -64,6 +64,14 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    const MAX_TEXT_LENGTH = 100000;
+    if (extractedText.length > MAX_TEXT_LENGTH) {
+      return createResponse(false, modelId, startTime, {
+        error: "Extracted document text exceeds the maximum allowed limit (100,000 characters). Please upload a standard bank statement.",
+        status: 422,
+      });
+    }
+
     const parsed = await runLLM(env.AI, modelId, extractedText);
     if (!parsed) {
       const is3BModel = modelId.includes("3b");

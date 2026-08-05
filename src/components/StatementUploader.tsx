@@ -31,9 +31,15 @@ export function StatementUploader({
   const selectedModel = MODELS.find((m) => m.id === model) || MODELS[0];
 
   const MAX_FILE_SIZE = 10 * 1024 * 1024;
+  const ALLOWED_EXTENSIONS = [".pdf", ".png", ".jpg", ".jpeg", ".webp"];
 
   const handleSelectFile = (f: File | undefined) => {
     if (!f) return;
+    const ext = "." + f.name.split(".").pop()?.toLowerCase();
+    if (!ALLOWED_EXTENSIONS.includes(ext)) {
+      onError?.("Invalid file type. Please upload a PDF, PNG, JPG, or WEBP bank statement.");
+      return;
+    }
     if (f.size > MAX_FILE_SIZE) {
       onError?.("File is too large. Maximum allowed size is 10MB.");
       return;

@@ -29,7 +29,7 @@ export function ResultsDashboard({ result }: ResultsDashboardProps) {
     { label: "Account", value: data.account_number_mask || "—" },
     { label: "Total Deposits", value: fmtCurrency(data.total_deposits) ?? "—" },
     { label: "Total Withdrawals", value: fmtCurrency(data.total_withdrawals) ?? "—" },
-    { label: "NSF / Overdraft Count", value: data.nsf_count !== null ? `${data.nsf_count}` : "0" },
+    { label: "NSF / Overdraft Count", value: data.nsf_count != null ? `${data.nsf_count}` : "—" },
   ];
 
   return (
@@ -91,7 +91,7 @@ export function ResultsDashboard({ result }: ResultsDashboardProps) {
             <h4 className="card-title text-secondary mb-2" style={{ fontSize: "0.85rem", letterSpacing: "0.05em", textTransform: "uppercase" }}>
               Raw Structured JSON
             </h4>
-            <pre className="p-3 rounded mb-0 text-start font-mono border bg-dark text-light" style={{ fontSize: "0.8rem", maxHeight: "400px", overflow: "auto" }}>
+            <pre className="p-3 rounded mb-0 text-start font-monospace border bg-dark text-light" style={{ fontSize: "0.8rem", maxHeight: "400px", overflow: "auto" }}>
               {JSON.stringify(data, null, 2)}
             </pre>
           </div>

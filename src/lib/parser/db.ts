@@ -32,7 +32,7 @@ export async function saveDocument(
       parsed.statement_period ?? null,
       parsed.total_deposits ?? null,
       parsed.total_withdrawals ?? null,
-      parsed.nsf_count ?? 0,
+      parsed.nsf_count ?? null,
       JSON.stringify(parsed),
       modelId
     )

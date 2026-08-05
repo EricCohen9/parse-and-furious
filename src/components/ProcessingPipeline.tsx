@@ -13,7 +13,7 @@ const STAGES = [
   { label: "Validating file & generating SHA-256 hash...", targetProgress: 15 },
   { label: "Extracting document text via Workers AI OCR...", targetProgress: 35 },
   { label: "Running LLM financial metrics & NSF extraction...", targetProgress: 75 },
-  { label: "Evaluating MCA stacking & underwriting risk score...", targetProgress: 90 },
+  { label: "Structuring bank statement metrics & verifying schema...", targetProgress: 90 },
   { label: "Saving parsed statement to Cloudflare D1 database...", targetProgress: 98 },
 ];
 
@@ -73,7 +73,7 @@ export function ProcessingPipeline({ fileName, modelId }: ProcessingPipelineProp
               {currentStage.label}
             </span>
           </div>
-          <span className="badge bg-primary-lt font-mono">{progress}%</span>
+          <span className="badge bg-primary-lt font-monospace">{progress}%</span>
         </div>
 
         <div className="progress progress-sm mb-2">

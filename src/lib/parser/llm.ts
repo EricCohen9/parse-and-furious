@@ -58,7 +58,7 @@ export async function runLLM(
     const res = (await ai.run(modelId as Parameters<typeof ai.run>[0], {
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
-        { role: "user", content: text.trim() },
+        { role: "user", content: text.trim().slice(0, 100000) },
       ],
       max_tokens: maxTokens,
       temperature: 0,
