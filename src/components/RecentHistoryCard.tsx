@@ -100,13 +100,6 @@ export function RecentHistoryCard({ onSelectDocument, refreshTrigger }: RecentHi
                     {doc.bank_name ? `${doc.bank_name} • ` : ""}{new Date(doc.created_at).toLocaleDateString()}
                   </div>
                 </div>
-                <div className="col-auto text-end">
-                  {doc.total_deposits !== null && (
-                    <div className="font-weight-bold text-body" style={{ fontSize: "0.88rem" }}>
-                      {fmtCurrency(doc.total_deposits)}
-                    </div>
-                  )}
-                </div>
               </div>
             </div>
           ))}

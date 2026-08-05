@@ -26,35 +26,29 @@ export function ProcessingPipeline({ fileName, modelId }: ProcessingPipelineProp
   const isFastModel = modelId.includes("3b");
 
   useEffect(() => {
-    const showTimer = setTimeout(() => setVisible(true), 350);
+    const timeline = {
+      showDelay: 350,
+      progressInterval: isFastModel ? 150 : 380,
+      stageDelays: isFastModel ? [500, 2200, 5000, 6500] : [800, 3500, 12000, 15000],
+    };
 
-    const t1Delay = isFastModel ? 500 : 800;
-    const t2Delay = isFastModel ? 2200 : 3500;
-    const t3Delay = isFastModel ? 5000 : 12000;
-    const t4Delay = isFastModel ? 6500 : 15000;
-    const tickInterval = isFastModel ? 150 : 380;
-
-    const t1 = setTimeout(() => setStageIndex(1), t1Delay);
-    const t2 = setTimeout(() => setStageIndex(2), t2Delay);
-    const t3 = setTimeout(() => setStageIndex(3), t3Delay);
-    const t4 = setTimeout(() => setStageIndex(4), t4Delay);
+    const showTimer = setTimeout(() => setVisible(true), timeline.showDelay);
+    const stageTimers = timeline.stageDelays.map((delay, index) =>
+      setTimeout(() => setStageIndex(index + 1), delay),
+    );
 
     const interval = setInterval(() => {
       setProgress((prev) => {
-        if (prev < 98) {
-          const step = prev > 88 ? 1 : 2;
-          return Math.min(98, prev + step);
-        }
-        return prev;
+        if (prev >= 98) return prev;
+
+        const step = prev > 88 ? 1 : 2;
+        return Math.min(98, prev + step);
       });
-    }, tickInterval);
+    }, timeline.progressInterval);
 
     return () => {
       clearTimeout(showTimer);
-      clearTimeout(t1);
-      clearTimeout(t2);
-      clearTimeout(t3);
-      clearTimeout(t4);
+      stageTimers.forEach(clearTimeout);
       clearInterval(interval);
     };
   }, [isFastModel]);

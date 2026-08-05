@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { MODELS, ParseResponse } from "@/lib/types";
-import { Navbar } from "@/components/Navbar";
 import { HeroHeader } from "@/components/HeroHeader";
 import { StatementUploader } from "@/components/StatementUploader";
 import { ErrorAlert } from "@/components/ErrorAlert";
@@ -58,7 +57,6 @@ export default function Home() {
 
   return (
     <div className="page bg-body">
-      <Navbar />
       <div className="page-wrapper">
         <div className="container-xl py-4">
           <HeroHeader />
